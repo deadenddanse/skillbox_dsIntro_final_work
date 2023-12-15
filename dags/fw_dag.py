@@ -13,7 +13,7 @@ from modules.final_work import upload_new_files
 
 args = {
     'owner': 'airflow',
-    'start_date': dt.datetime(2022, 6, 10),
+    'start_date': dt.datetime(2023, 12, 15),
     'retries': 1,
     'retry_delay': dt.timedelta(minutes=1),
     'depends_on_past': False,
@@ -22,7 +22,6 @@ args = {
 
 with DAG(
         dag_id='db_upload',
-        schedule="00 15 * * *",
         default_args=args,
 ) as dag:
     main_upload = PythonOperator(
@@ -32,6 +31,11 @@ with DAG(
         weight_rule='downstream',
     )
 
+with DAG(
+        dag_id='db_additional_upload',
+        schedule="0 0 * * *",
+        default_args=args,
+) as dag1:
     additional_upload = PythonOperator(
         task_id='upload_additional_files',
         python_callable=upload_new_files,
@@ -40,4 +44,3 @@ with DAG(
     )
 
 
-main_upload >> additional_upload
